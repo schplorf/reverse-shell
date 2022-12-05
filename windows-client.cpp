@@ -84,7 +84,7 @@ int main(const int argc, const char* argv[]){
         char szCmdResultBuffer[4096];
         std::string result;
         while(fgets(szCmdResultBuffer, sizeof(szCmdResultBuffer), p) != nullptr) {
-	        result += szCmdResultBuffer;
+            result += szCmdResultBuffer;
         }
         _pclose(p);
         std::cout << "SNDRSLT: " << result << std::endl;
