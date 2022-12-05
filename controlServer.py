@@ -20,10 +20,17 @@ print('Connection from', addr)
 # Enter a loop to send commands to the client and receive responses
 while True:
     # Get a command from the user
-    cmd = input('Enter a command: ')
+    cmd = input('Enter a command (or "exit" to quit): ')
+    # If cmd is 'exit', exit the loop
+    if cmd == 'exit':
+        break
     # Send the command to the client
     conn.send(cmd.encode())
     # Receive the response from the client
     data = conn.recv(4096)
     # Print the response
     print(data.decode())
+
+# Close the connection and socket
+conn.close()
+s.close()
