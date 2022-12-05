@@ -3,11 +3,13 @@ import socket
 # Listen for incoming connections on port 52727
 # Not going to worry about multithreading for now
 
+# Some useful variables
+serv_port = 52727
+serv_addr = '' # Listen on all interfaces
+
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Bind the socket to the port
-server_address = ('localhost', 52727)
+server_address = (serv_addr, serv_port) # Tuple of server address and port
 print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 
